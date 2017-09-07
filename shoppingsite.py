@@ -74,9 +74,6 @@ def show_shopping_cart():
         current_melon.order_total = "$%.2f" % current_melon.order_total
         cart_list.append(current_melon)
 
-
-
-
     # TODO: Display the contents of the shopping cart.
 
     # The logic here will be something like:
@@ -108,14 +105,14 @@ def add_to_cart(melon_id):
 
     session.setdefault("cart", default={})
 
-    cart_dict = session["cart"]
-
-    if melon_id in cart_dict:
-        cart_dict[melon_id] += 1
+    if melon_id in session["cart"]:
+        session["cart"][melon_id] += 1
     else:
-        cart_dict[melon_id] = 1
+        session["cart"][melon_id] = 1
 
-    msg = melons.get_by_id(melon_id).common_name + " was added to your cart!"
+    current_melon = melons.get_by_id(melon_id)
+
+    msg = current_melon.common_name + " was added to your cart!"
 
     flash(msg)
 
