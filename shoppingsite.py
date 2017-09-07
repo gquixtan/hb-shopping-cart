@@ -7,7 +7,7 @@ Authors: Joel Burton, Christian Fernandez, Meggie Mahnken, Katie Byers.
 """
 
 
-from flask import Flask, render_template, redirect, flash
+from flask import Flask, render_template, redirect, flash, session
 import jinja2
 
 import melons
@@ -60,6 +60,17 @@ def show_melon(melon_id):
 def show_shopping_cart():
     """Display content of shopping cart."""
 
+    session.setdefault("cart", default={})
+
+    order_total = 0
+
+    cart_list = []
+
+    for melon_id in session["cart"]:
+        cart_list.append(melon_id)
+        quantity = cart_dict[melon_id]
+        order_total += quantity * melons.get_by_id(melon_id).price
+
     # TODO: Display the contents of the shopping cart.
 
     # The logic here will be something like:
@@ -78,7 +89,7 @@ def show_shopping_cart():
     # Make sure your function can also handle the case wherein no cart has
     # been added to the session
 
-    return render_template("cart.html")
+    return render_template("cart.html", cart_list=cart_list, order_total=order_total)
 
 
 @app.route("/add_to_cart/<melon_id>")
@@ -88,6 +99,19 @@ def add_to_cart(melon_id):
     When a melon is added to the cart, redirect browser to the shopping cart
     page and display a confirmation message: 'Melon successfully added to
     cart'."""
+
+    session.setdefault("cart", default={})
+
+    cart_dict = session["cart"]
+
+    if melon_id in cart_dict:
+        cart_dict[melon_id] += 1
+    else:
+        cart_dict[melon_id] = 1
+
+    msg = melons.get_by_id(melon_id).common_name + " was added to your cart!"
+
+    flash(msg)
 
     # TODO: Finish shopping cart functionality
 
@@ -100,7 +124,7 @@ def add_to_cart(melon_id):
     # - flash a success message
     # - redirect the user to the cart page
 
-    return "Oops! This needs to be implemented!"
+    return redirect("/cart")
 
 
 @app.route("/login", methods=["GET"])
